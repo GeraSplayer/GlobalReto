@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.global.MainFragment"
+        android:label="Busqueda"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_mainFragment_to_detalleFragment"
+            app:destination="@id/detalleFragment" />
+        <argument
+            android:name="term"
+            android:defaultValue="default"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_mainFragment_self"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="location"
+            app:argType="com.google.android.gms.maps.model.LatLng"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_mainFragment_to_suggestFragment"
+            app:destination="@id/suggestFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detalleFragment"
+        android:name="com.example.global.DetalleFragment"
+        android:label="Detalle"
+        tools:layout="@layout/fragment_detalle">
+        <argument
+            android:name="itemID"
+            android:defaultValue="default"
+            app:argType="string" />
+        <argument
+            android:name="location"
+            app:argType="com.google.android.gms.maps.model.LatLng"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
+        android:id="@+id/suggestFragment"
+        android:name="com.example.global.SuggestFragment"
+        android:label="Sugerencias"
+        tools:layout="@layout/fragment_suggest" >
+        <action
+            android:id="@+id/action_suggestFragment_to_mainFragment"
+            app:destination="@id/mainFragment"
+            app:popUpTo="@id/mainFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="mListener"
+            app:argType="com.example.global.interfaces.ActivityListener"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_suggestFragment_self"
+            app:destination="@id/suggestFragment"
+            app:popUpTo="@id/suggestFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="location"
+            app:argType="com.google.android.gms.maps.model.LatLng"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="term"
+            app:argType="string"
+            android:defaultValue="default" />
+    </fragment>
+</navigation>
