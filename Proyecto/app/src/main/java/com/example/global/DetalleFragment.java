@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class DetalleFragment extends Fragment {
 
-    FragmentDetalleBinding fragmentDetalleBinding;
-    GoogleMap googleMap;
+    private FragmentDetalleBinding fragmentDetalleBinding;
+    private GoogleMap googleMap;
 
     public DetalleFragment() {
         // Required empty public constructor

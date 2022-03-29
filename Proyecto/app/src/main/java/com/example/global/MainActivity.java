@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
+import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
@@ -35,12 +36,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity  implements ActivityListener{
 
-    ActivityMainBinding activityMainBinding;
-    Context mContext;
-    LatLng mLocation;
-    NavController navController;
-    boolean suggestFlag = false;
-    boolean alreadySuggestFlag = false;
+    private ActivityMainBinding activityMainBinding;
+    private Context mContext;
+    private LatLng mLocation;
+    private NavController navController;
+    private boolean alreadySuggestFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
         View view = activityMainBinding.getRoot();
         setContentView(view);
 
+        //Obtiene la positión actual, y pide los permisos si no los han dado
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             mLocation = getLastLocation();
         }else{
@@ -84,23 +85,10 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!suggestFlag) {
-                    if(!alreadySuggestFlag) {
-                        MainFragmentDirections.ActionMainFragmentToSuggestFragment actionMainFragmentToSuggestFragment = MainFragmentDirections.actionMainFragmentToSuggestFragment();
-                        actionMainFragmentToSuggestFragment.setMListener(MainActivity.this);
-                        actionMainFragmentToSuggestFragment.setLocation(mLocation);
-                        actionMainFragmentToSuggestFragment.setTerm(charSequence.toString());
-                        navController.navigate(actionMainFragmentToSuggestFragment);
-                    }else{
-                        SuggestFragmentDirections.ActionSuggestFragmentSelf actionSuggestFragmentSelf = SuggestFragmentDirections.actionSuggestFragmentSelf();
-                        actionSuggestFragmentSelf.setMListener(MainActivity.this);
-                        actionSuggestFragmentSelf.setLocation(mLocation);
-                        actionSuggestFragmentSelf.setTerm(charSequence.toString());
-                        navController.navigate(actionSuggestFragmentSelf);
-                    }
-
-                }else {
-                    suggestFlag = false;
+                if (!alreadySuggestFlag) {
+                    changeFragment(MainFragmentDirections.actionMainFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
+                }else{
+                    changeFragment(SuggestFragmentDirections.actionSuggestFragmentSelf(), charSequence.toString(), mLocation, MainActivity.this);
                 }
             }
             @Override
@@ -112,36 +100,50 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
             @Override
             public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent) {
                 if(action == EditorInfo.IME_ACTION_SEARCH && !textView.getText().toString().isEmpty()){
-
                     textView.clearFocus();
                     hideKeyboard(mContext);
                     Toast.makeText(mContext, "Buscando", Toast.LENGTH_SHORT).show();
-
                     if(!alreadySuggestFlag) {
-                        MainFragmentDirections.ActionMainFragmentSelf actionMainFragmentSelf = MainFragmentDirections.actionMainFragmentSelf();
-                        actionMainFragmentSelf.setTerm(textView.getText().toString());
-                        actionMainFragmentSelf.setLocation(mLocation);
-                        navController.navigate(actionMainFragmentSelf);
+                        changeFragment(MainFragmentDirections.actionMainFragmentSelf(), textView.getText().toString(), mLocation, MainActivity.this);
                     }else{
-                        SuggestFragmentDirections.ActionSuggestFragmentToMainFragment actionSuggestFragmentToMainFragment = SuggestFragmentDirections.actionSuggestFragmentToMainFragment();
-                        actionSuggestFragmentToMainFragment.setTerm(textView.getText().toString());
-                        actionSuggestFragmentToMainFragment.setLocation(mLocation);
-                        navController.navigate(actionSuggestFragmentToMainFragment);
+                        changeFragment(SuggestFragmentDirections.actionSuggestFragmentToMainFragment(), textView.getText().toString(), mLocation, MainActivity.this);
                     }
-
                     return true;
                 }
                 return false;
             }
         });
+
     }
 
+    private void changeFragment(NavDirections action, String term, LatLng loc, ActivityListener listener){
+        if(action instanceof MainFragmentDirections.ActionMainFragmentToSuggestFragment){
+            ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setMListener(listener);
+            ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setLocation(loc);
+            ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setTerm(term);
+        }else if(action instanceof SuggestFragmentDirections.ActionSuggestFragmentSelf){
+            ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setMListener(listener);
+            ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setLocation(loc);
+            ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setTerm(term);
+        }
+        else if(action instanceof MainFragmentDirections.ActionMainFragmentSelf){
+            ((MainFragmentDirections.ActionMainFragmentSelf) action).setLocation(loc);
+            ((MainFragmentDirections.ActionMainFragmentSelf) action).setTerm(term);
+        }else if(action instanceof SuggestFragmentDirections.ActionSuggestFragmentToMainFragment){
+            ((SuggestFragmentDirections.ActionSuggestFragmentToMainFragment) action).setLocation(loc);
+            ((SuggestFragmentDirections.ActionSuggestFragmentToMainFragment) action).setTerm(term);
+        }
+        navController.navigate(action);
+    }
+
+    //--Metodo para hacer que el boton de la flechita '<-' en la action bar funcione como presionar el boton de back--
     @Override
     public boolean onSupportNavigateUp() {
         navController.navigateUp();
         return super.onSupportNavigateUp();
     }
 
+    //--Metodos para obtner la posición actual del usuario, y pide permisos en caso de no tener los permisos correspondientes--
     private LatLng getLastLocation() throws SecurityException{
         LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = locationManager.getProviders(true);
@@ -166,15 +168,17 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
         }
     }
 
+    //--Metodo para ocultar el teclado cuando empiece una busqueda
     public void hideKeyboard(Context context) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         View view = activityMainBinding.getRoot();
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    //--Metodo para escuchar el evento de que hayan presionado un item la de ListView dentro del fragemnt de SuggestFragment--
+    //--describeContents y writeToParcel son metodos implementados para poder pasar la activity actual como Safe args al fragment de SuggestFragment
     @Override
     public void onSuggestClick(String suggestion) {
-        suggestFlag =true;
         activityMainBinding.etSearch.setText(suggestion);
     }
     @Override

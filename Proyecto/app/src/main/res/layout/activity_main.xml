@@ -13,7 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Buscar"
+        android:hint="@string/searchbar"
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:singleLine="true"

@@ -2,4 +2,17 @@
     <string name="app_name">Global</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="welcome_message">Ingresa en la barra de búsqueda “pizza”, “tacos”, etc…</string>
+    <string name="none_results">Sin resultados</string>
+    <string name="searchbar">Buscar</string>
+
+    <string name="itemName">nombre</string>
+    <string name="itemCategoria">categoria</string>
+    <string name="itemDireccion">dirección</string>
+    <string name="itemRating">rating</string>
+    <string name="itemCount">(count)</string>
+    <string name="itemPrecio">precio</string>
+    <string name="itemTelefono">telefono</string>
+
 </resources>

@@ -29,13 +29,13 @@ import java.util.List;
 
 public class MainFragment extends Fragment implements fragmentListener {
     
-    FragmentMainBinding fragmentMainBinding;
-    NavController navController;
-    Context mContext;
-    RecyclerAdapter RecyclerAdapter;
-    List<Item> itemList;
-    String mTerm;
-    LatLng mLocation;
+    private FragmentMainBinding fragmentMainBinding;
+    private NavController navController;
+    private Context mContext;
+    private RecyclerAdapter RecyclerAdapter;
+    private List<Item> itemList;
+    private String mTerm;
+    private LatLng mLocation;
 
     public MainFragment() {
         // Required empty public constructor
@@ -63,12 +63,15 @@ public class MainFragment extends Fragment implements fragmentListener {
         fragmentMainBinding.rvItemList.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
         RecyclerAdapter.notifyDataSetChanged();
 
+        fragmentMainBinding.tvFirstTime.setVisibility(View.GONE);
         if(getArguments() != null){
             MainFragmentArgs args = MainFragmentArgs.fromBundle(getArguments());
             mTerm = args.getTerm();
             mLocation = args.getLocation();
-            if(!mTerm.equals("default") && mLocation != null) {
+            if(mTerm !=null && mLocation != null) {
                 getItemList(mTerm, mLocation);
+            }else {
+                fragmentMainBinding.tvFirstTime.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -76,8 +79,11 @@ public class MainFragment extends Fragment implements fragmentListener {
     @Override
     public void onResume() {
         super.onResume();
-        if(!mTerm.equals("default")) {
+        fragmentMainBinding.tvFirstTime.setVisibility(View.GONE);
+        if(mTerm !=null && mLocation != null) {
             getItemList(mTerm, mLocation);
+        }else {
+            fragmentMainBinding.tvFirstTime.setVisibility(View.VISIBLE);
         }
     }
 

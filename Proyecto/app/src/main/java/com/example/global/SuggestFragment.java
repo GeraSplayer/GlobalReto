@@ -26,13 +26,13 @@ import java.util.Collection;
 
 public class SuggestFragment extends Fragment {
 
-    FragmentSuggestBinding fragmentSuggestBinding;
-    Context mContext;
-    ActivityListener mListener;
-    LatLng mLocation;
-    String mTerm;
-    ArrayList<String> sugerencias;
-    ArrayAdapter<String> adapter;
+    private FragmentSuggestBinding fragmentSuggestBinding;
+    private Context mContext;
+    private ActivityListener mListener;
+    private LatLng mLocation;
+    private String mTerm;
+    private ArrayList<String> sugerencias;
+    private ArrayAdapter<String> adapter;
 
     public SuggestFragment() {
         // Required empty public constructor
