@@ -74,6 +74,8 @@ public class ModoMapaFragment extends Fragment {
             mTerm = args.getTerm();
             mLocation = args.getLocation();
             mListener = args.getListener();
+            if(mListener != null)
+                mListener.showProgressBar();
             if(mTerm !=null && mLocation != null ) {
                 if(!mTerm.equals(""))
                     getItemList(mTerm, mLocation);
@@ -175,6 +177,8 @@ public class ModoMapaFragment extends Fragment {
                 if (ContextCompat.checkSelfPermission(fragmentModoMapaBinding.getRoot().getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
                     googleMap.setMyLocationEnabled(true);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
+                if(mListener != null)
+                    mListener.hideProgressBar();
             }
         });
     }

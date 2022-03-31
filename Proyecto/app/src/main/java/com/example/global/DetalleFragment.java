@@ -61,6 +61,8 @@ public class DetalleFragment extends Fragment {
             mLocation = args.getLocation();
             mListener = args.getListener();
 
+            if(mListener != null)
+                mListener.showProgressBar();
             searchDetails(id);
         }
 

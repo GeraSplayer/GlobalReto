@@ -71,6 +71,8 @@ public class MainFragment extends Fragment implements fragmentListener {
             mTerm = args.getTerm();
             mLocation = args.getLocation();
             mListener = args.getListener();
+            if(mListener != null)
+                mListener.showProgressBar();
             if(mTerm != null && mLocation != null) {
                 getItemList(mTerm, mLocation);
             }else {

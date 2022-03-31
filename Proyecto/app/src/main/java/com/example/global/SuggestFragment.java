@@ -65,7 +65,10 @@ public class SuggestFragment extends Fragment {
                 mListener.onSuggestClick(sugerencias.get(i));
             }
         });
-        getSuggestionList(mTerm, mLocation);
+        if(mListener != null)
+            mListener.showProgressBar();
+        if(mTerm !=null && mLocation != null )
+            getSuggestionList(mTerm, mLocation);
 
     }
 

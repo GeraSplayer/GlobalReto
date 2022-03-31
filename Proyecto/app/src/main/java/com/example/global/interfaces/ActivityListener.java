@@ -10,4 +10,5 @@ public interface ActivityListener extends Parcelable {
     void onSuggestClick(String suggestion);
     void onDetallesClick(NavDirections action, String term, LatLng loc );
     void hideProgressBar();
+    void showProgressBar();
 }

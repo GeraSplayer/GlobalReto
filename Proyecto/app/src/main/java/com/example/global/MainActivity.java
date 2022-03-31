@@ -67,12 +67,12 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
             @Override
             public void onDestinationChanged(@NotNull NavController navController, @NotNull NavDestination navDestination, @Nullable Bundle bundle) {
                 if(navDestination.getId() == R.id.detalleFragment) {
-                    activityMainBinding.etSearch.setVisibility(View.GONE);
+                    activityMainBinding.tilSearch.setVisibility(View.GONE);
                     alreadySuggestFlag = false;
                     activityMainBinding.floatingActionButton.setVisibility(View.GONE);
                 }
                 if(navDestination.getId() == R.id.mainFragment) {
-                    activityMainBinding.etSearch.setVisibility(View.VISIBLE);
+                    activityMainBinding.tilSearch.setVisibility(View.VISIBLE);
                     alreadySuggestFlag = false;
                     modoMapaFlag = false;
                     activityMainBinding.floatingActionButton.setVisibility(View.VISIBLE);
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
                     activityMainBinding.floatingActionButton.setVisibility(View.GONE);
                 }
                 if(navDestination.getId() == R.id.modoMapaFragment){
-                    activityMainBinding.etSearch.setVisibility(View.VISIBLE);
+                    activityMainBinding.tilSearch.setVisibility(View.VISIBLE);
                     alreadySuggestFlag = false;
                     modoMapaFlag = true;
                     activityMainBinding.floatingActionButton.setVisibility(View.GONE);
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
             }
         });
 
-        activityMainBinding.etSearch.addTextChangedListener(new TextWatcher() {
+        activityMainBinding.tietSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -100,17 +100,18 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
                 if (alreadySuggestFlag)
                     changeFragment(SuggestFragmentDirections.actionSuggestFragmentSelf(), charSequence.toString(), mLocation, MainActivity.this);
                 else
-                    if(!modoMapaFlag)
-                        changeFragment(MainFragmentDirections.actionMainFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
-                    else
-                        changeFragment(ModoMapaFragmentDirections.actionModoMapaFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
+                if(!modoMapaFlag)
+                    changeFragment(MainFragmentDirections.actionMainFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
+                else
+                    changeFragment(ModoMapaFragmentDirections.actionModoMapaFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
             }
             @Override
             public void afterTextChanged(Editable editable) {
 
             }
         });
-        activityMainBinding.etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+        activityMainBinding.tietSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int action, KeyEvent keyEvent) {
                 if(action == EditorInfo.IME_ACTION_SEARCH && !textView.getText().toString().isEmpty()){
@@ -138,14 +139,13 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
         activityMainBinding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String term = activityMainBinding.etSearch.getText().toString();
+                String term = activityMainBinding.tietSearch.getText().toString();
                 changeFragment(MainFragmentDirections.actionMainFragmentToModoMapaFragment(), term, mLocation, MainActivity.this );
             }
         });
     }
 
     private void changeFragment(NavDirections action, String term, LatLng loc, ActivityListener listener){
-        activityMainBinding.clProgressBar.setVisibility(View.VISIBLE);
         if(action instanceof MainFragmentDirections.ActionMainFragmentToSuggestFragment){
             ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setListener(listener);
             ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setLocation(loc);
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
     //--Metodo para escuchar el evento de que hayan presionado un item la de ListView dentro del fragemnt de SuggestFragment--
     @Override
     public void onSuggestClick(String suggestion) {
-        activityMainBinding.etSearch.setText(suggestion);
+        activityMainBinding.tietSearch.setText(suggestion);
     }
 
     @Override
@@ -246,6 +246,9 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
     @Override
     public void hideProgressBar() {
         activityMainBinding.clProgressBar.setVisibility(View.GONE);
+    }
+    public void showProgressBar() {
+        activityMainBinding.clProgressBar.setVisibility(View.VISIBLE);
     }
 
     //--describeContents y writeToParcel son metodos implementados para poder pasar la activity actual como Safe args al fragment de SuggestFragment
