@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
     private LatLng mLocation;
     private NavController navController;
     private boolean alreadySuggestFlag = false;
+    private boolean modoMapaFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,16 +66,27 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NotNull NavController navController, @NotNull NavDestination navDestination, @Nullable Bundle bundle) {
-                if(navDestination.getId() == R.id.detalleFragment)
+                if(navDestination.getId() == R.id.detalleFragment) {
                     activityMainBinding.etSearch.setVisibility(View.GONE);
+                    alreadySuggestFlag = false;
+                    activityMainBinding.floatingActionButton.setVisibility(View.GONE);
+                }
                 if(navDestination.getId() == R.id.mainFragment) {
                     activityMainBinding.etSearch.setVisibility(View.VISIBLE);
                     alreadySuggestFlag = false;
+                    modoMapaFlag = false;
+                    activityMainBinding.floatingActionButton.setVisibility(View.VISIBLE);
                 }
                 if(navDestination.getId() == R.id.suggestFragment){
                     alreadySuggestFlag = true;
+                    activityMainBinding.floatingActionButton.setVisibility(View.GONE);
                 }
-
+                if(navDestination.getId() == R.id.modoMapaFragment){
+                    activityMainBinding.etSearch.setVisibility(View.VISIBLE);
+                    alreadySuggestFlag = false;
+                    modoMapaFlag = true;
+                    activityMainBinding.floatingActionButton.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -85,11 +97,13 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!alreadySuggestFlag) {
-                    changeFragment(MainFragmentDirections.actionMainFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
-                }else{
+                if (alreadySuggestFlag)
                     changeFragment(SuggestFragmentDirections.actionSuggestFragmentSelf(), charSequence.toString(), mLocation, MainActivity.this);
-                }
+                else
+                    if(!modoMapaFlag)
+                        changeFragment(MainFragmentDirections.actionMainFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
+                    else
+                        changeFragment(ModoMapaFragmentDirections.actionModoMapaFragmentToSuggestFragment(), charSequence.toString(), mLocation, MainActivity.this);
             }
             @Override
             public void afterTextChanged(Editable editable) {
@@ -103,35 +117,78 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
                     textView.clearFocus();
                     hideKeyboard(mContext);
                     Toast.makeText(mContext, "Buscando", Toast.LENGTH_SHORT).show();
-                    if(!alreadySuggestFlag) {
-                        changeFragment(MainFragmentDirections.actionMainFragmentSelf(), textView.getText().toString(), mLocation, MainActivity.this);
-                    }else{
-                        changeFragment(SuggestFragmentDirections.actionSuggestFragmentToMainFragment(), textView.getText().toString(), mLocation, MainActivity.this);
-                    }
+
+                    if(!alreadySuggestFlag)
+                        if(!modoMapaFlag)
+                            changeFragment(MainFragmentDirections.actionMainFragmentSelf(), textView.getText().toString(), mLocation, MainActivity.this);
+                        else
+                            changeFragment(ModoMapaFragmentDirections.actionModoMapaFragmentSelf(), textView.getText().toString(), mLocation, MainActivity.this);
+                    else
+                        if(!modoMapaFlag)
+                            changeFragment(SuggestFragmentDirections.actionSuggestFragmentToMainFragment(), textView.getText().toString(), mLocation, MainActivity.this);
+                        else
+                            changeFragment(SuggestFragmentDirections.actionSuggestFragmentToModoMapaFragment(), textView.getText().toString(), mLocation, MainActivity.this);
+
+
                     return true;
                 }
                 return false;
             }
         });
-
+        activityMainBinding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String term = activityMainBinding.etSearch.getText().toString();
+                changeFragment(MainFragmentDirections.actionMainFragmentToModoMapaFragment(), term, mLocation, MainActivity.this );
+            }
+        });
     }
 
     private void changeFragment(NavDirections action, String term, LatLng loc, ActivityListener listener){
+        activityMainBinding.clProgressBar.setVisibility(View.VISIBLE);
         if(action instanceof MainFragmentDirections.ActionMainFragmentToSuggestFragment){
-            ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setMListener(listener);
+            ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setListener(listener);
             ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setLocation(loc);
             ((MainFragmentDirections.ActionMainFragmentToSuggestFragment)action).setTerm(term);
         }else if(action instanceof SuggestFragmentDirections.ActionSuggestFragmentSelf){
-            ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setMListener(listener);
+            ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setListener(listener);
             ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setLocation(loc);
             ((SuggestFragmentDirections.ActionSuggestFragmentSelf) action).setTerm(term);
         }
         else if(action instanceof MainFragmentDirections.ActionMainFragmentSelf){
+            ((MainFragmentDirections.ActionMainFragmentSelf) action).setListener(listener);
             ((MainFragmentDirections.ActionMainFragmentSelf) action).setLocation(loc);
             ((MainFragmentDirections.ActionMainFragmentSelf) action).setTerm(term);
         }else if(action instanceof SuggestFragmentDirections.ActionSuggestFragmentToMainFragment){
+            ((SuggestFragmentDirections.ActionSuggestFragmentToMainFragment) action).setListener(listener);
             ((SuggestFragmentDirections.ActionSuggestFragmentToMainFragment) action).setLocation(loc);
             ((SuggestFragmentDirections.ActionSuggestFragmentToMainFragment) action).setTerm(term);
+        }
+        else if(action instanceof  MainFragmentDirections.ActionMainFragmentToModoMapaFragment){
+            ((MainFragmentDirections.ActionMainFragmentToModoMapaFragment)action).setListener(listener);
+            ((MainFragmentDirections.ActionMainFragmentToModoMapaFragment)action).setLocation(loc);
+            ((MainFragmentDirections.ActionMainFragmentToModoMapaFragment)action).setTerm(term);
+        }else if(action instanceof  ModoMapaFragmentDirections.ActionModoMapaFragmentToSuggestFragment){
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToSuggestFragment)action).setListener(listener);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToSuggestFragment)action).setLocation(loc);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToSuggestFragment)action).setTerm(term);
+        }else if(action instanceof  ModoMapaFragmentDirections.ActionModoMapaFragmentSelf){
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentSelf)action).setListener(listener);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentSelf)action).setLocation(loc);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentSelf)action).setTerm(term);
+        }else if(action instanceof  SuggestFragmentDirections.ActionSuggestFragmentToModoMapaFragment){
+            ((SuggestFragmentDirections.ActionSuggestFragmentToModoMapaFragment)action).setListener(listener);
+            ((SuggestFragmentDirections.ActionSuggestFragmentToModoMapaFragment)action).setLocation(loc);
+            ((SuggestFragmentDirections.ActionSuggestFragmentToModoMapaFragment)action).setTerm(term);
+        }
+        else if(action instanceof MainFragmentDirections.ActionMainFragmentToDetalleFragment){
+            ((MainFragmentDirections.ActionMainFragmentToDetalleFragment)action).setListener(listener);
+            ((MainFragmentDirections.ActionMainFragmentToDetalleFragment)action).setLocation(loc);
+            ((MainFragmentDirections.ActionMainFragmentToDetalleFragment)action).setItemID(term);
+        }else if(action instanceof ModoMapaFragmentDirections.ActionModoMapaFragmentToDetalleFragment){
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToDetalleFragment)action).setListener(listener);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToDetalleFragment)action).setItemID(term);
+            ((ModoMapaFragmentDirections.ActionModoMapaFragmentToDetalleFragment)action).setLocation(loc);
         }
         navController.navigate(action);
     }
@@ -176,11 +233,22 @@ public class MainActivity extends AppCompatActivity  implements ActivityListener
     }
 
     //--Metodo para escuchar el evento de que hayan presionado un item la de ListView dentro del fragemnt de SuggestFragment--
-    //--describeContents y writeToParcel son metodos implementados para poder pasar la activity actual como Safe args al fragment de SuggestFragment
     @Override
     public void onSuggestClick(String suggestion) {
         activityMainBinding.etSearch.setText(suggestion);
     }
+
+    @Override
+    public void onDetallesClick(NavDirections action, String term, LatLng loc) {
+        changeFragment(action, term, loc, MainActivity.this);
+    }
+
+    @Override
+    public void hideProgressBar() {
+        activityMainBinding.clProgressBar.setVisibility(View.GONE);
+    }
+
+    //--describeContents y writeToParcel son metodos implementados para poder pasar la activity actual como Safe args al fragment de SuggestFragment
     @Override
     public int describeContents() {
         return 0;

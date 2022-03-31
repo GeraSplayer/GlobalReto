@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.example.global.adapter.RecyclerAdapter;
 import com.example.global.classes.Item;
 import com.example.global.databinding.FragmentMainBinding;
+import com.example.global.interfaces.ActivityListener;
 import com.example.global.interfaces.NetworkCallback;
 import com.example.global.interfaces.fragmentListener;
 import com.example.global.network.Networking;
@@ -36,6 +37,7 @@ public class MainFragment extends Fragment implements fragmentListener {
     private List<Item> itemList;
     private String mTerm;
     private LatLng mLocation;
+    private ActivityListener mListener;
 
     public MainFragment() {
         // Required empty public constructor
@@ -68,11 +70,13 @@ public class MainFragment extends Fragment implements fragmentListener {
             MainFragmentArgs args = MainFragmentArgs.fromBundle(getArguments());
             mTerm = args.getTerm();
             mLocation = args.getLocation();
-            if(mTerm !=null && mLocation != null) {
+            mListener = args.getListener();
+            if(mTerm != null && mLocation != null) {
                 getItemList(mTerm, mLocation);
             }else {
                 fragmentMainBinding.tvFirstTime.setVisibility(View.VISIBLE);
             }
+
         }
     }
 
@@ -108,6 +112,8 @@ public class MainFragment extends Fragment implements fragmentListener {
                             fragmentMainBinding.rvItemList.setVisibility(View.GONE);
                             fragmentMainBinding.tvNoneResults.setVisibility(View.VISIBLE);
                         }
+                        if(mListener != null)
+                            mListener.hideProgressBar();
                     }
                 });
             }
@@ -116,10 +122,7 @@ public class MainFragment extends Fragment implements fragmentListener {
 
     @Override
     public void onClickListener(String id) {
-        MainFragmentDirections.ActionMainFragmentToDetalleFragment action = MainFragmentDirections.actionMainFragmentToDetalleFragment();
-        action.setItemID(id);
-        action.setLocation(mLocation);
-        navController.navigate(action);
+        mListener.onDetallesClick(MainFragmentDirections.actionMainFragmentToDetalleFragment(), id, mLocation);
     }
 
 }

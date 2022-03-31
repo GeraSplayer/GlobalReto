@@ -6,6 +6,9 @@
     <string name="welcome_message">Ingresa en la barra de búsqueda “pizza”, “tacos”, etc…</string>
     <string name="none_results">Sin resultados</string>
     <string name="searchbar">Buscar</string>
+    <string name="details">Ver</string>
+
+    <string name="tagTu">Tú</string>
 
     <string name="itemName">nombre</string>
     <string name="itemCategoria">categoria</string>

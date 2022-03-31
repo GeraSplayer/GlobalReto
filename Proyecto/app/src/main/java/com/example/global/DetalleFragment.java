@@ -1,6 +1,7 @@
 package com.example.global;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.example.global.classes.Item;
 import com.example.global.databinding.FragmentDetalleBinding;
+import com.example.global.interfaces.ActivityListener;
 import com.example.global.interfaces.NetworkCallback;
 import com.example.global.network.Networking;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 public class DetalleFragment extends Fragment {
 
     private FragmentDetalleBinding fragmentDetalleBinding;
-    private GoogleMap googleMap;
+    private Context mContext;
+    private LatLng mLocation;
+    private ActivityListener mListener;
 
     public DetalleFragment() {
         // Required empty public constructor
@@ -42,6 +46,7 @@ public class DetalleFragment extends Fragment {
         // Inflate the layout for this fragment
         //return inflater.inflate(R.layout.fragment_detalle, container, false);
         fragmentDetalleBinding = FragmentDetalleBinding.inflate(inflater, container, false);
+        mContext = fragmentDetalleBinding.getRoot().getContext();
         return fragmentDetalleBinding.getRoot();
     }
 
@@ -53,17 +58,24 @@ public class DetalleFragment extends Fragment {
         if(getArguments() != null){
             DetalleFragmentArgs args= DetalleFragmentArgs.fromBundle(getArguments());
             String id = args.getItemID();
-            LatLng location = args.getLocation();
+            mLocation = args.getLocation();
+            mListener = args.getListener();
 
-            //Search
-            new Networking(view.getContext()).execute("detalle", new NetworkCallback() {
-                @Override
-                public void onWorkFinish(Object data) {
-                    if(getActivity() == null)
-                        return;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+            searchDetails(id);
+        }
+
+    }
+
+    private void searchDetails(String id){
+        new Networking(mContext).execute("detalle", new NetworkCallback() {
+            @Override
+            public void onWorkFinish(Object data) {
+                if(getActivity() == null)
+                    return;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(data != null) {
                             Item i = (Item) data;
                             fragmentDetalleBinding.setMItem(i);
 
@@ -73,20 +85,22 @@ public class DetalleFragment extends Fragment {
 
                                     LatLng coordinates = new LatLng(i.getILatitud(), i.getILongitud());
                                     googleMap.addMarker(new MarkerOptions().position(coordinates).title(i.getINombre()));
-                                    if(location != null)
-                                        googleMap.addMarker(new MarkerOptions().position(location).title("Yo"));
-                                    if(ContextCompat.checkSelfPermission(fragmentDetalleBinding.getRoot().getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                                    if (mLocation != null)
+                                        googleMap.addMarker(new MarkerOptions().position(mLocation).title( getString(R.string.tagTu) ));
+                                    if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
                                         googleMap.setMyLocationEnabled(true);
                                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 15));
 
                                 }
                             });
                         }
+                        mListener.hideProgressBar();
 
-                    });
-                }
-            }, id);
-        }
+                    }
+
+                });
+            }
+        }, id);
 
     }
 

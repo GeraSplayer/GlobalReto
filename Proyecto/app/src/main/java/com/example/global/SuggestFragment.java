@@ -51,7 +51,7 @@ public class SuggestFragment extends Fragment {
 
         if(getArguments() != null){
             SuggestFragmentArgs args = SuggestFragmentArgs.fromBundle(getArguments());
-            mListener = args.getMListener();
+            mListener = args.getListener();
             mLocation = args.getLocation();
             mTerm = args.getTerm();
         }
@@ -83,6 +83,7 @@ public class SuggestFragment extends Fragment {
                             sugerencias.addAll((Collection<? extends String>)data);
                             adapter.notifyDataSetChanged();
                         }
+                        mListener.hideProgressBar();
                     }
                 });
             }
